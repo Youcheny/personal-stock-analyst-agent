@@ -18,7 +18,7 @@ pip install -r web_requirements.txt
 
 # Start the Flask app
 echo "🌐 Starting Flask server on port 5001..."
-python web_app.py
+python src/web/app.py
 echo ""
 echo "✅ Web interface started successfully!"
 echo "🌐 Open your browser to: http://localhost:5001"

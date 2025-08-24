@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, jsonify
+import os
 from flask_cors import CORS
 import asyncio
 import threading
@@ -8,6 +9,10 @@ import os
 from dotenv import load_dotenv
 
 # Import our Value Agent components
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
+
 from src.orchestrator import Orchestrator
 from src.agents.research_coordinator import ResearchCoordinator
 from src.agents.sector_tech import TechAnalyst
@@ -17,7 +22,9 @@ from src.tools.sec_filings import SecFilings
 from src.tools.market_data import MarketData
 from src.tools.llm_analyzer import LLMAnalyzer
 
-app = Flask(__name__)
+app = Flask(__name__, 
+           template_folder=os.path.join(os.path.dirname(__file__), 'templates'),
+           static_folder=os.path.join(os.path.dirname(__file__), 'static'))
 CORS(app)
 
 # Load environment variables
