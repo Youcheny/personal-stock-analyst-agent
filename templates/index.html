@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Value Agent - AI-Powered Stock Research</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center">
+                    <i class="fas fa-chart-line text-blue-600 text-2xl mr-3"></i>
+                    <h1 class="text-2xl font-bold text-gray-900">Value Agent</h1>
+                    <span class="ml-2 text-sm text-gray-500">AI-Powered Stock Research</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="#" class="text-gray-600 hover:text-gray-900">
+                        <i class="fas fa-question-circle"></i>
+                    </a>
+                    <a href="#" class="text-gray-600 hover:text-gray-900">
+                        <i class="fas fa-cog"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Stock Search Section -->
+        <div class="mb-8">
+            <div class="max-w-2xl mx-auto">
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-search text-gray-400"></i>
+                    </div>
+                    <input 
+                        type="text" 
+                        id="stockSearch" 
+                        class="block w-full pl-10 pr-3 py-4 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Search for stocks (e.g., AAPL, MSFT, GOOGL)..."
+                        autocomplete="off"
+                    >
+                    <div id="searchResults" class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg hidden">
+                        <!-- Search results will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stock Analysis Dashboard -->
+        <div id="stockDashboard" class="hidden">
+            <!-- Stock Header -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 id="stockSymbol" class="text-3xl font-bold text-gray-900">--</h2>
+                        <p id="stockName" class="text-lg text-gray-600">--</p>
+                        <p id="stockSector" class="text-sm text-gray-500">--</p>
+                    </div>
+                    <div class="text-right">
+                        <div id="stockPrice" class="text-2xl font-bold text-gray-900">--</div>
+                        <div id="stockChange" class="text-sm">--</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Performance Chart -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Performance (1 Year)</h3>
+                <div class="h-64">
+                    <canvas id="performanceChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Analysis Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Business Overview -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-900">Business Overview</h3>
+                        <div id="businessOverviewStatus" class="text-sm text-gray-500">
+                            <i class="fas fa-spinner fa-spin"></i> Loading...
+                        </div>
+                    </div>
+                    <div id="businessOverviewContent" class="space-y-3">
+                        <!-- Content will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Quick Facts -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-900">Quick Facts</h3>
+                        <div id="quickFactsStatus" class="text-sm text-gray-500">
+                            <i class="fas fa-spinner fa-spin"></i> Loading...
+                        </div>
+                    </div>
+                    <div id="quickFactsContent" class="space-y-3">
+                        <!-- Content will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Risk Analysis -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-900">Risk Analysis</h3>
+                        <div id="riskAnalysisStatus" class="text-sm text-gray-500">
+                            <i class="fas fa-spinner fa-spin"></i> Loading...
+                        </div>
+                    </div>
+                    <div id="riskAnalysisContent" class="prose prose-sm max-w-none">
+                        <!-- Content will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Tech Analysis -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-900">Tech Analysis</h3>
+                        <div id="techAnalysisStatus" class="text-sm text-gray-500">
+                            <i class="fas fa-spinner fa-spin"></i> Loading...
+                        </div>
+                    </div>
+                    <div id="techAnalysisContent" class="prose prose-sm max-w-none">
+                        <!-- Content will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Financials Analysis -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-900">Financials Analysis</h3>
+                        <div id="financialsAnalysisStatus" class="text-sm text-gray-500">
+                            <i class="fas fa-spinner fa-spin"></i> Loading...
+                        </div>
+                    </div>
+                    <div id="financialsAnalysisContent" class="prose prose-sm max-w-none">
+                        <!-- Content will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Full Report -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 lg:col-span-2">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-900">Full Research Report</h3>
+                        <button id="downloadReport" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                            <i class="fas fa-download mr-2"></i>Download PDF
+                        </button>
+                    </div>
+                    <div id="fullReportContent" class="prose prose-sm max-w-none">
+                        <!-- Content will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Welcome Message -->
+        <div id="welcomeMessage" class="text-center py-16">
+            <i class="fas fa-chart-line text-6xl text-gray-300 mb-6"></i>
+            <h2 class="text-2xl font-semibold text-gray-600 mb-4">Welcome to Value Agent</h2>
+            <p class="text-gray-500 max-w-md mx-auto">
+                Search for any stock above to get AI-powered analysis including business overview, 
+                financial metrics, risk assessment, and sector-specific insights.
+            </p>
+        </div>
+    </main>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-8 text-center">
+            <i class="fas fa-spinner fa-spin text-4xl text-blue-600 mb-4"></i>
+            <p class="text-lg font-semibold text-gray-900">Analyzing Stock...</p>
+            <p class="text-gray-600">This may take a few moments</p>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
