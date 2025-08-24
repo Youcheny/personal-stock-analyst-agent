@@ -4,9 +4,9 @@ class TechAnalyst:
     CHECKLIST = [
         "Moat: network effects / switching costs / data advantage?",
         "Unit economics: gross margin path vs R&D/S&M intensity",
-        "Durability: dependence on platform shifts (cloud, AI infra)?",
+        "Durability: dependence on platform shifts (cloud, AI infra, etc.)?",
         "Customer concentration & churn (if available)",
-        "SBC dilution trend",
+        "Stock Based Dilution trend",
     ]
 
     def __init__(self, tools):

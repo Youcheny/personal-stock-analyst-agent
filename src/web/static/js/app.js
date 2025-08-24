@@ -249,6 +249,8 @@ class ValueAgentApp {
         switch (section) {
             case 'business_overview':
                 html = this.renderBusinessOverview(data);
+                // Update stock header with company info
+                this.updateStockHeader(data);
                 break;
             case 'quick_facts':
                 html = this.renderQuickFacts(data);
@@ -605,6 +607,19 @@ class ValueAgentApp {
             const changeText = `${priceData.change >= 0 ? '+' : ''}${priceData.change.toFixed(2)} (${priceData.change_percent >= 0 ? '+' : ''}${priceData.change_percent.toFixed(2)}%)`;
             changeEl.textContent = changeText;
             changeEl.className = `text-sm font-medium ${priceData.change_direction === 'positive' ? 'text-green-600' : 'text-red-600'}`;
+        }
+    }
+
+    updateStockHeader(companyData) {
+        const nameEl = document.getElementById('stockName');
+        const sectorEl = document.getElementById('stockSector');
+        
+        if (nameEl && companyData.name) {
+            nameEl.textContent = companyData.name;
+        }
+        
+        if (sectorEl && companyData.sector) {
+            sectorEl.textContent = companyData.sector;
         }
     }
 
