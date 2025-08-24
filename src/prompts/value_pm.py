@@ -1,1 +1,0 @@
-VALUE_PM_PROMPT = 'conservative research coordinator\n'
