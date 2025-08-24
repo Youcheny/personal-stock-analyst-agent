@@ -59,30 +59,149 @@ def index():
 
 @app.route('/api/search_stocks')
 def search_stocks():
-    """Search for stocks based on query"""
-    query = request.args.get('q', '').upper()
-    if not query:
+    """Search for stocks based on query using Yahoo Finance"""
+    query = request.args.get('q', '').strip()
+    if not query or len(query) < 1:
         return jsonify([])
     
-    # Mock stock search - in production, you'd integrate with a real stock API
-    mock_stocks = [
-        {"symbol": "AAPL", "name": "Apple Inc.", "sector": "Technology"},
-        {"symbol": "MSFT", "name": "Microsoft Corporation", "sector": "Technology"},
-        {"symbol": "GOOGL", "name": "Alphabet Inc.", "sector": "Technology"},
-        {"symbol": "AMZN", "name": "Amazon.com Inc.", "sector": "Consumer Cyclical"},
-        {"symbol": "META", "name": "Meta Platforms Inc.", "sector": "Technology"},
-        {"symbol": "TSLA", "name": "Tesla Inc.", "sector": "Consumer Cyclical"},
-        {"symbol": "NVDA", "name": "NVIDIA Corporation", "sector": "Technology"},
-        {"symbol": "JPM", "name": "JPMorgan Chase & Co.", "sector": "Financial Services"},
-        {"symbol": "JNJ", "name": "Johnson & Johnson", "sector": "Healthcare"},
-        {"symbol": "PG", "name": "Procter & Gamble Co.", "sector": "Consumer Defensive"}
-    ]
-    
-    # Filter stocks based on query
-    filtered_stocks = [stock for stock in mock_stocks 
-                      if query in stock["symbol"] or query in stock["name"].upper()]
-    
-    return jsonify(filtered_stocks[:5])
+    try:
+        # Use Yahoo Finance search for real-time stock discovery
+        import yfinance as yf
+        
+        stocks = []
+        
+        # Try direct ticker lookup first
+        try:
+            ticker = yf.Ticker(query.upper())
+            info = ticker.info
+            if info and info.get('symbol'):
+                stock_data = {
+                    "symbol": info.get('symbol', ''),
+                    "name": info.get('longName') or info.get('shortName') or info.get('name', ''),
+                    "sector": info.get('sector', 'N/A'),
+                    "industry": info.get('industry', 'N/A'),
+                    "exchange": info.get('exchange', 'N/A')
+                }
+                
+                if stock_data["symbol"] and stock_data["name"]:
+                    stocks.append(stock_data)
+        except:
+            pass
+        
+        # Try common ticker variations
+        variations = [
+            query.upper() + "A",
+            query.upper() + "B",
+            query.upper() + "1", 
+            query.upper() + "2",
+            query.upper() + "3",
+            query.upper() + "4",
+            query.upper() + "5"
+        ]
+        
+        for variation in variations:
+            try:
+                ticker = yf.Ticker(variation)
+                info = ticker.info
+                if info and info.get('symbol'):
+                    stock_data = {
+                        "symbol": info.get('symbol', ''),
+                        "name": info.get('longName') or info.get('shortName') or info.get('name', ''),
+                        "sector": info.get('sector', 'N/A'),
+                        "industry": info.get('industry', 'N/A'),
+                        "exchange": info.get('exchange', 'N/A')
+                    }
+                    
+                    if stock_data["symbol"] and stock_data["name"]:
+                        stocks.append(stock_data)
+                        if len(stocks) >= 5:  # Limit to 5 results
+                            break
+            except:
+                continue
+        
+        # If we still don't have results, try some common stock patterns
+        if not stocks and len(query) >= 2:
+            common_patterns = [
+                "SPY", "QQQ", "IWM", "VTI", "VOO",  # ETFs
+                "AAPL", "MSFT", "GOOGL", "AMZN", "META",  # Tech
+                "JPM", "BAC", "WFC", "GS", "MS",  # Financials
+                "JNJ", "PFE", "UNH", "ABBV", "MRK",  # Healthcare
+                "PG", "KO", "PEP", "WMT", "HD",  # Consumer
+                "TSLA", "NVDA", "NFLX", "CRM", "ADBE",  # More Tech
+                "UNH", "ABT", "TMO", "DHR", "LLY",  # More Healthcare
+                "MA", "V", "AXP", "COF", "DFS"  # More Financials
+            ]
+            
+            for pattern in common_patterns:
+                if query.upper() in pattern or pattern.startswith(query.upper()):
+                    try:
+                        ticker = yf.Ticker(pattern)
+                        info = ticker.info
+                        if info and info.get('symbol'):
+                            stock_data = {
+                                "symbol": info.get('symbol', ''),
+                                "name": info.get('longName') or info.get('shortName') or info.get('name', ''),
+                                "sector": info.get('sector', 'N/A'),
+                                "industry": info.get('industry', 'N/A'),
+                                "exchange": info.get('exchange', 'N/A')
+                            }
+                            
+                            if stock_data["symbol"] and stock_data["name"]:
+                                stocks.append(stock_data)
+                                if len(stocks) >= 5:  # Limit to 5 results
+                                    break
+                    except:
+                        continue
+        
+        # Final fallback: try to find stocks by partial company name match
+        if not stocks and len(query) >= 3:
+            # Try some known company name patterns
+            company_patterns = {
+                "COCA": "KO",  # Coca-Cola
+                "COKE": "KO",  # Coca-Cola
+                "APPLE": "AAPL",  # Apple
+                "MICROSOFT": "MSFT",  # Microsoft
+                "GOOGLE": "GOOGL",  # Google
+                "AMAZON": "AMZN",  # Amazon
+                "TESLA": "TSLA",  # Tesla
+                "NVIDIA": "NVDA",  # NVIDIA
+                "NETFLIX": "NFLX",  # Netflix
+                "JOHNSON": "JNJ",  # Johnson & Johnson
+                "PFIZER": "PFE",  # Pfizer
+                "WALMART": "WMT",  # Walmart
+                "HOME": "HD",  # Home Depot
+                "BANK": "JPM",  # JPMorgan
+                "CHASE": "JPM",  # JPMorgan Chase
+                "GOLDMAN": "GS",  # Goldman Sachs
+                "MORGAN": "MS",  # Morgan Stanley
+            }
+            
+            for company_name, ticker_symbol in company_patterns.items():
+                if query.upper() in company_name:
+                    try:
+                        ticker = yf.Ticker(ticker_symbol)
+                        info = ticker.info
+                        if info and info.get('symbol'):
+                            stock_data = {
+                                "symbol": info.get('symbol', ''),
+                                "name": info.get('longName') or info.get('shortName') or info.get('name', ''),
+                                "sector": info.get('sector', 'N/A'),
+                                "industry": info.get('industry', 'N/A'),
+                                "exchange": info.get('exchange', 'N/A')
+                            }
+                            
+                            if stock_data["symbol"] and stock_data["name"]:
+                                stocks.append(stock_data)
+                                break
+                    except:
+                        continue
+        
+        return jsonify(stocks)
+        
+    except Exception as e:
+        print(f"Error in stock search: {e}")
+        # Fallback to basic search if Yahoo Finance fails
+        return jsonify([])
 
 @app.route('/api/stock/<symbol>')
 def get_stock_data(symbol):
