@@ -8,9 +8,9 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'src'))
 # Import the Flask app
 from web.app import app
 
-# Export the app for Vercel
+# Configure the app for production
 app.debug = False
 app.config['TESTING'] = False
 
-# This is what Vercel expects
-handler = app
+# Export the Flask app directly - Vercel will handle the WSGI conversion
+app
