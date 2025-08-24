@@ -27,6 +27,11 @@ app = Flask(__name__,
            static_folder='static')
 CORS(app)
 
+# Configure logging to show up in Vercel
+import logging
+logging.basicConfig(level=logging.INFO)
+app.logger.setLevel(logging.INFO)
+
 # Load environment variables
 load_dotenv()
 
@@ -69,27 +74,27 @@ def static_files(filename):
 
 @app.route('/api/search_stocks')
 def search_stocks():
-    """Search for stocks based on query using Yahoo Finance"""
+    """Search for stocks based on query using Yahoo Finance with proper logging"""
     query = request.args.get('q', '').strip()
-    print(f"🔍 Search request received for query: '{query}'")
+    app.logger.info(f"🔍 Search request received for query: '{query}'")
     
     if not query or len(query) < 1:
-        print("❌ Empty query, returning empty results")
+        app.logger.warning("❌ Empty query, returning empty results")
         return jsonify([])
     
     try:
         # Use Yahoo Finance search for real-time stock discovery
         import yfinance as yf
-        print("✅ yfinance imported successfully")
+        app.logger.info("✅ yfinance imported successfully")
         
         stocks = []
         
         # Try direct ticker lookup first
         try:
-            print(f"🔍 Trying direct ticker lookup for: {query.upper()}")
+            app.logger.info(f"🔍 Trying direct ticker lookup for: {query.upper()}")
             ticker = yf.Ticker(query.upper())
             info = ticker.info
-            print(f"📊 Ticker info received: {bool(info)}")
+            app.logger.info(f"📊 Ticker info received: {bool(info)}")
             
             if info and info.get('symbol'):
                 stock_data = {
@@ -102,13 +107,14 @@ def search_stocks():
                 
                 if stock_data["symbol"] and stock_data["name"]:
                     stocks.append(stock_data)
-                    print(f"✅ Added stock: {stock_data['symbol']} - {stock_data['name']}")
+                    app.logger.info(f"✅ Added stock: {stock_data['symbol']} - {stock_data['name']}")
                 else:
-                    print(f"❌ Stock data incomplete: {stock_data}")
+                    app.logger.warning(f"❌ Stock data incomplete: {stock_data}")
             else:
-                print(f"❌ No ticker info found for: {query.upper()}")
+                app.logger.warning(f"❌ No ticker info found for: {query.upper()}")
         except Exception as e:
-            print(f"❌ Direct ticker lookup failed: {str(e)}")
+            app.logger.error(f"❌ Direct ticker lookup failed: {str(e)}")
+            app.logger.error(f"❌ Error details: {type(e).__name__}: {str(e)}")
             pass
         
         # Try common ticker variations
@@ -137,9 +143,11 @@ def search_stocks():
                     
                     if stock_data["symbol"] and stock_data["name"]:
                         stocks.append(stock_data)
+                        app.logger.info(f"✅ Added variation stock: {stock_data['symbol']} - {stock_data['name']}")
                         if len(stocks) >= 5:  # Limit to 5 results
                             break
-            except:
+            except Exception as e:
+                app.logger.debug(f"Variation {variation} failed: {str(e)}")
                 continue
         
         # If we still don't have results, try some common stock patterns
@@ -171,9 +179,11 @@ def search_stocks():
                             
                             if stock_data["symbol"] and stock_data["name"]:
                                 stocks.append(stock_data)
+                                app.logger.info(f"✅ Added pattern stock: {stock_data['symbol']} - {stock_data['name']}")
                                 if len(stocks) >= 5:  # Limit to 5 results
                                     break
-                    except:
+                    except Exception as e:
+                        app.logger.debug(f"Pattern {pattern} failed: {str(e)}")
                         continue
         
         # Final fallback: try to find stocks by partial company name match
@@ -215,20 +225,31 @@ def search_stocks():
                             
                             if stock_data["symbol"] and stock_data["name"]:
                                 stocks.append(stock_data)
+                                app.logger.info(f"✅ Added company name stock: {stock_data['symbol']} - {stock_data['name']}")
                                 break
-                    except:
+                    except Exception as e:
+                        app.logger.debug(f"Company name {company_name} failed: {str(e)}")
                         continue
         
-        print(f"🎯 Final search results: {len(stocks)} stocks found")
+        app.logger.info(f"🎯 Final search results: {len(stocks)} stocks found")
         for i, stock in enumerate(stocks):
-            print(f"  {i+1}. {stock['symbol']} - {stock['name']}")
+            app.logger.info(f"  {i+1}. {stock['symbol']} - {stock['name']}")
         
-        return jsonify(stocks)
+        # Debug: log the exact data being returned
+        app.logger.info(f"🔍 Returning JSON data: {stocks}")
+        app.logger.info(f"🔍 JSON data type: {type(stocks)}")
+        app.logger.info(f"🔍 JSON data length: {len(stocks)}")
+        
+        response = jsonify(stocks)
+        app.logger.info(f"🔍 Response object created successfully")
+        
+        return response
         
     except Exception as e:
-        print(f"❌ Error in stock search: {e}")
+        app.logger.error(f"❌ Error in stock search: {e}")
+        app.logger.error(f"❌ Error type: {type(e).__name__}")
         import traceback
-        traceback.print_exc()
+        app.logger.error(f"❌ Traceback: {traceback.format_exc()}")
         # Fallback to basic search if Yahoo Finance fails
         return jsonify([])
 
