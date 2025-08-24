@@ -322,7 +322,9 @@ class ValueAgentApp {
                     </div>
                     <div>
                         <h4 class="font-semibold text-gray-900">Business Summary</h4>
-                        <p class="text-gray-700">${data.summary || 'No description available'}</p>
+                        <div class="text-gray-700 markdown-content">
+                            ${this.parseMarkdown(data.summary || 'No description available')}
+                        </div>
                     </div>
                 </div>
             </div>

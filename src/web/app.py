@@ -118,7 +118,7 @@ def get_analysis_section(symbol, section):
                     "name": profile.get('longName') or profile.get('name') or 'N/A',
                     "sector": profile.get('sector', 'N/A'),
                     "industry": profile.get('industry', 'N/A'),
-                    "summary": profile.get('longBusinessSummary', 'No description available')[:600] + "..." if profile.get('longBusinessSummary') else 'No description available'
+                    "summary": profile.get('longBusinessSummary', 'No description available')
                 }
             })
         
