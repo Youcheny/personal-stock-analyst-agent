@@ -116,12 +116,35 @@ class MarketData:
                 d = total_debt or 0.0
                 e = total_equity or 0.0
                 c = cash or 0.0
-                invested_capital = max(d + e - c, 1e-6)
+                raw_invested_capital = d + e - c
+                
+                # Only calculate ROIC if invested capital is meaningful
+                if raw_invested_capital > 1e6:  # At least $1M in invested capital
+                    invested_capital = raw_invested_capital
+                else:
+                    print(f"Warning: Insufficient invested capital ${raw_invested_capital:,.0f} for {ticker}, skipping ROIC calculation")
 
             roic_est = None
             if ebit is not None and invested_capital:
-                nopat = ebit * (1.0 - 0.21)
-                roic_est = nopat / invested_capital
+                # Sanity check: EBIT should be reasonable relative to invested capital
+                ebit_to_capital = abs(ebit) / invested_capital
+                if ebit_to_capital > 2.0:  # EBIT > 200% of invested capital is suspicious
+                    print(f"Warning: Suspicious EBIT ${ebit:,.0f} vs invested capital ${invested_capital:,.0f} for {ticker}, skipping ROIC")
+                else:
+                    nopat = ebit * (1.0 - 0.21)
+                    roic_est = nopat / invested_capital
+                    
+                    # Sanity check: ROIC should be reasonable (typically between -50% and 100%)
+                    # If it's outside this range, it's likely due to data quality issues
+                    if roic_est is not None:
+                        if roic_est > 1.0:  # > 100%
+                            # Log the issue and cap at reasonable value
+                            print(f"Warning: Unrealistic ROIC {roic_est:.1%} for {ticker}, capping at 100%")
+                            roic_est = 1.0
+                        elif roic_est < -0.5:  # < -50%
+                            # Cap extremely negative values
+                            print(f"Warning: Extremely negative ROIC {roic_est:.1%} for {ticker}, capping at -50%")
+                            roic_est = -0.5
 
             def norm_pct(x):
                 if x is None:
