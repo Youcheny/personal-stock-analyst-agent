@@ -57,6 +57,16 @@ def index():
     """Main page with stock search interface"""
     return render_template('index.html')
 
+@app.route('/static/<path:filename>')
+def static_files(filename):
+    """Serve static files explicitly"""
+    print(f"📁 Static file request: {filename}")
+    try:
+        return app.send_static_file(filename)
+    except Exception as e:
+        print(f"❌ Error serving static file {filename}: {e}")
+        return f"File not found: {filename}", 404
+
 @app.route('/api/search_stocks')
 def search_stocks():
     """Search for stocks based on query using Yahoo Finance"""
