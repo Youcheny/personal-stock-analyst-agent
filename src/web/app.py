@@ -166,6 +166,45 @@ def get_analysis_section(symbol, section):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route('/api/stock/<symbol>/price')
+def get_stock_price(symbol):
+    """Get current stock price and change"""
+    if not orchestrator:
+        return jsonify({"error": "Value Agent not initialized"}), 500
+    
+    try:
+        # Get current price data
+        profile = orchestrator.coordinator.tools["mkt"].company_profile(symbol)
+        
+        if not profile:
+            return jsonify({"error": "Stock not found"}), 404
+        
+        # Extract price data
+        current_price = profile.get('currentPrice')
+        previous_close = profile.get('previousClose')
+        
+        if current_price is None or previous_close is None:
+            return jsonify({"error": "Price data not available"}), 404
+        
+        # Calculate change and percentage
+        price_change = current_price - previous_close
+        price_change_percent = (price_change / previous_close) * 100
+        
+        # Determine change direction and styling
+        change_direction = "positive" if price_change >= 0 else "negative"
+        
+        return jsonify({
+            "symbol": symbol.upper(),
+            "current_price": current_price,
+            "previous_close": previous_close,
+            "change": price_change,
+            "change_percent": price_change_percent,
+            "change_direction": change_direction
+        })
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @app.route('/api/stock/<symbol>/performance')
 def get_stock_performance(symbol):
     """Get stock performance data for charts"""

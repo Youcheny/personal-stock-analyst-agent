@@ -496,14 +496,25 @@ class ValueAgentApp {
 
     async loadPerformanceChart(symbol) {
         try {
-            const response = await fetch(`/api/stock/${symbol}/performance`);
-            const data = await response.json();
+            // Load both performance chart and current price
+            const [performanceResponse, priceResponse] = await Promise.all([
+                fetch(`/api/stock/${symbol}/performance`),
+                fetch(`/api/stock/${symbol}/price`)
+            ]);
             
-            if (data.error) {
-                throw new Error(data.error);
+            const performanceData = await performanceResponse.json();
+            const priceData = await priceResponse.json();
+            
+            if (performanceData.error) {
+                throw new Error(performanceData.error);
             }
             
-            this.renderPerformanceChart(data);
+            this.renderPerformanceChart(performanceData);
+            
+            // Update stock price display
+            if (!priceData.error) {
+                this.updateStockPrice(priceData);
+            }
             
         } catch (error) {
             console.error('Error loading performance chart:', error);
@@ -579,6 +590,21 @@ class ValueAgentApp {
                     </div>
                 </div>
             `;
+        }
+    }
+
+    updateStockPrice(priceData) {
+        const priceEl = document.getElementById('stockPrice');
+        const changeEl = document.getElementById('stockChange');
+        
+        if (priceEl) {
+            priceEl.textContent = `$${priceData.current_price.toFixed(2)}`;
+        }
+        
+        if (changeEl) {
+            const changeText = `${priceData.change >= 0 ? '+' : ''}${priceData.change.toFixed(2)} (${priceData.change_percent >= 0 ? '+' : ''}${priceData.change_percent.toFixed(2)}%)`;
+            changeEl.textContent = changeText;
+            changeEl.className = `text-sm font-medium ${priceData.change_direction === 'positive' ? 'text-green-600' : 'text-red-600'}`;
         }
     }
 
