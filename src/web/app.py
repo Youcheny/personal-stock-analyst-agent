@@ -115,7 +115,13 @@ def search_stocks():
         except Exception as e:
             app.logger.error(f"❌ Direct ticker lookup failed: {str(e)}")
             app.logger.error(f"❌ Error details: {type(e).__name__}: {str(e)}")
-            pass
+            
+            # Check if it's a rate limit error
+            if "429" in str(e) or "Too Many Requests" in str(e):
+                app.logger.warning("⚠️ Rate limit detected, falling back to hardcoded results")
+                # Don't pass, continue to fallback logic
+            else:
+                pass
         
         # Try common ticker variations
         variations = [
@@ -230,6 +236,60 @@ def search_stocks():
                     except Exception as e:
                         app.logger.debug(f"Company name {company_name} failed: {str(e)}")
                         continue
+        
+        # If we still don't have results, try hardcoded fallback
+        if not stocks:
+            app.logger.info("🔄 No yfinance results, trying hardcoded fallback")
+            hardcoded_results = {
+                "nvda": [{"symbol": "NVDA", "name": "NVIDIA Corporation", "sector": "Technology", "industry": "Semiconductors", "exchange": "NMS"}],
+                "nvd": [{"symbol": "NVD", "name": "Graniteshares 2x Short NVDA Daily ETF", "sector": "ETF", "industry": "Leveraged ETF", "exchange": "NMS"}],
+                "aapl": [{"symbol": "AAPL", "name": "Apple Inc.", "sector": "Technology", "industry": "Consumer Electronics", "exchange": "NMS"}],
+                "aa": [{"symbol": "AA", "name": "Alcoa Corporation", "sector": "Basic Materials", "industry": "Aluminum", "exchange": "NMS"}],
+                "msft": [{"symbol": "MSFT", "name": "Microsoft Corporation", "sector": "Technology", "industry": "Software", "exchange": "NMS"}],
+                "goog": [{"symbol": "GOOGL", "name": "Alphabet Inc.", "sector": "Technology", "industry": "Internet Content", "exchange": "NMS"}],
+                "googl": [{"symbol": "GOOGL", "name": "Alphabet Inc.", "sector": "Technology", "industry": "Internet Content", "exchange": "NMS"}],
+                "amzn": [{"symbol": "AMZN", "name": "Amazon.com Inc.", "sector": "Consumer Cyclical", "industry": "Internet Retail", "exchange": "NMS"}],
+                "tsla": [{"symbol": "TSLA", "name": "Tesla Inc.", "sector": "Consumer Cyclical", "industry": "Auto Manufacturers", "exchange": "NMS"}],
+                "meta": [{"symbol": "META", "name": "Meta Platforms Inc.", "sector": "Technology", "industry": "Internet Content", "exchange": "NMS"}],
+                "nflx": [{"symbol": "NFLX", "name": "Netflix Inc.", "sector": "Communication Services", "industry": "Entertainment", "exchange": "NMS"}],
+                "jpm": [{"symbol": "JPM", "name": "JPMorgan Chase & Co.", "sector": "Financial Services", "industry": "Banks", "exchange": "NMS"}],
+                "bac": [{"symbol": "BAC", "name": "Bank of America Corp.", "sector": "Financial Services", "industry": "Banks", "exchange": "NMS"}],
+                "wmt": [{"symbol": "WMT", "name": "Walmart Inc.", "sector": "Consumer Defensive", "industry": "Discount Stores", "exchange": "NMS"}],
+                "ko": [{"symbol": "KO", "name": "The Coca-Cola Company", "sector": "Consumer Defensive", "industry": "Beverages", "exchange": "NMS"}],
+                "hd": [{"symbol": "HD", "name": "The Home Depot Inc.", "sector": "Consumer Cyclical", "industry": "Home Improvement Retail", "exchange": "NMS"}],
+                "spy": [{"symbol": "SPY", "name": "SPDR S&P 500 ETF Trust", "sector": "ETF", "industry": "ETF", "exchange": "NMS"}],
+                "qqq": [{"symbol": "QQQ", "name": "Invesco QQQ Trust", "sector": "ETF", "industry": "ETF", "exchange": "NMS"}],
+                "vti": [{"symbol": "VTI", "name": "Vanguard Total Stock Market ETF", "sector": "ETF", "industry": "ETF", "exchange": "NMS"}],
+                "voo": [{"symbol": "VOO", "name": "Vanguard S&P 500 ETF", "sector": "ETF", "industry": "ETF", "exchange": "NMS"}]
+            }
+            
+            query_lower = query.lower()
+            
+            # First, try exact matches
+            for key, results in hardcoded_results.items():
+                if query_lower == key:
+                    stocks.extend(results)
+                    app.logger.info(f"✅ Added hardcoded exact match: {results}")
+                    break
+            
+            # If no exact match, try partial matches
+            if not stocks:
+                for key, results in hardcoded_results.items():
+                    if query_lower in key or key.startswith(query_lower):
+                        stocks.extend(results)
+                        app.logger.info(f"✅ Added hardcoded partial match: {results}")
+                        if len(stocks) >= 5:  # Limit results
+                            break
+            
+            # If still no results, try some variations
+            if not stocks and len(query) >= 2:
+                variations = [query.upper() + "A", query.upper() + "1", query.upper() + "2"]
+                for var in variations:
+                    if var in hardcoded_results:
+                        stocks.extend(hardcoded_results[var])
+                        app.logger.info(f"✅ Added hardcoded variation: {hardcoded_results[var]}")
+                        if len(stocks) >= 5:
+                            break
         
         app.logger.info(f"🎯 Final search results: {len(stocks)} stocks found")
         for i, stock in enumerate(stocks):
