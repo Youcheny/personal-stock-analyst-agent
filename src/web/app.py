@@ -241,10 +241,10 @@ def search_stocks():
         if not stocks:
             app.logger.info("🔄 No yfinance results, trying hardcoded fallback")
             hardcoded_results = {
+                # Major Tech Companies
                 "nvda": [{"symbol": "NVDA", "name": "NVIDIA Corporation", "sector": "Technology", "industry": "Semiconductors", "exchange": "NMS"}],
                 "nvd": [{"symbol": "NVD", "name": "Graniteshares 2x Short NVDA Daily ETF", "sector": "ETF", "industry": "Leveraged ETF", "exchange": "NMS"}],
                 "aapl": [{"symbol": "AAPL", "name": "Apple Inc.", "sector": "Technology", "industry": "Consumer Electronics", "exchange": "NMS"}],
-                "aa": [{"symbol": "AA", "name": "Alcoa Corporation", "sector": "Basic Materials", "industry": "Aluminum", "exchange": "NMS"}],
                 "msft": [{"symbol": "MSFT", "name": "Microsoft Corporation", "sector": "Technology", "industry": "Software", "exchange": "NMS"}],
                 "goog": [{"symbol": "GOOGL", "name": "Alphabet Inc.", "sector": "Technology", "industry": "Internet Content", "exchange": "NMS"}],
                 "googl": [{"symbol": "GOOGL", "name": "Alphabet Inc.", "sector": "Technology", "industry": "Internet Content", "exchange": "NMS"}],
@@ -252,15 +252,112 @@ def search_stocks():
                 "tsla": [{"symbol": "TSLA", "name": "Tesla Inc.", "sector": "Consumer Cyclical", "industry": "Auto Manufacturers", "exchange": "NMS"}],
                 "meta": [{"symbol": "META", "name": "Meta Platforms Inc.", "sector": "Technology", "industry": "Internet Content", "exchange": "NMS"}],
                 "nflx": [{"symbol": "NFLX", "name": "Netflix Inc.", "sector": "Communication Services", "industry": "Entertainment", "exchange": "NMS"}],
+                "adbe": [{"symbol": "ADBE", "name": "Adobe Inc.", "sector": "Technology", "industry": "Software", "exchange": "NMS"}],
+                "crm": [{"symbol": "CRM", "name": "Salesforce Inc.", "sector": "Technology", "industry": "Software", "exchange": "NMS"}],
+                "orcl": [{"symbol": "ORCL", "name": "Oracle Corporation", "sector": "Technology", "industry": "Software", "exchange": "NMS"}],
+                "intc": [{"symbol": "INTC", "name": "Intel Corporation", "sector": "Technology", "industry": "Semiconductors", "exchange": "NMS"}],
+                "amd": [{"symbol": "AMD", "name": "Advanced Micro Devices Inc.", "sector": "Technology", "industry": "Semiconductors", "exchange": "NMS"}],
+                "qcom": [{"symbol": "QCOM", "name": "QUALCOMM Incorporated", "sector": "Technology", "industry": "Semiconductors", "exchange": "NMS"}],
+                "avgo": [{"symbol": "AVGO", "name": "Broadcom Inc.", "sector": "Technology", "industry": "Semiconductors", "exchange": "NMS"}],
+                "csco": [{"symbol": "CSCO", "name": "Cisco Systems Inc.", "sector": "Technology", "industry": "Communication Equipment", "exchange": "NMS"}],
+                "ibm": [{"symbol": "IBM", "name": "International Business Machines", "sector": "Technology", "industry": "Information Technology Services", "exchange": "NMS"}],
+                "hpq": [{"symbol": "HPQ", "name": "HP Inc.", "sector": "Technology", "industry": "Computer Hardware", "exchange": "NMS"}],
+                "dell": [{"symbol": "DELL", "name": "Dell Technologies Inc.", "sector": "Technology", "industry": "Computer Hardware", "exchange": "NMS"}],
+                "len": [{"symbol": "LEN", "name": "Lenovo Group Limited", "sector": "Technology", "industry": "Computer Hardware", "exchange": "NMS"}],
+                "snow": [{"symbol": "SNOW", "name": "Snowflake Inc.", "sector": "Technology", "industry": "Software", "exchange": "NMS"}],
+                "mdb": [{"symbol": "MDB", "name": "MongoDB Inc.", "sector": "Technology", "industry": "Software", "exchange": "NMS"}],
+                "pltr": [{"symbol": "PLTR", "name": "Palantir Technologies Inc.", "sector": "Technology", "industry": "Software", "exchange": "NMS"}],
+                "uber": [{"symbol": "UBER", "name": "Uber Technologies Inc.", "sector": "Technology", "industry": "Software", "exchange": "NMS"}],
+                "lyft": [{"symbol": "LYFT", "name": "Lyft Inc.", "sector": "Technology", "industry": "Software", "exchange": "NMS"}],
+                "shop": [{"symbol": "SHOP", "name": "Shopify Inc.", "sector": "Technology", "industry": "Software", "exchange": "NMS"}],
+                "sq": [{"symbol": "SQ", "name": "Block Inc.", "sector": "Technology", "industry": "Software", "exchange": "NMS"}],
+                "pypl": [{"symbol": "PYPL", "name": "PayPal Holdings Inc.", "sector": "Technology", "industry": "Software", "exchange": "NMS"}],
+                "ma": [{"symbol": "MA", "name": "Mastercard Incorporated", "sector": "Financial Services", "industry": "Credit Services", "exchange": "NMS"}],
+                "v": [{"symbol": "V", "name": "Visa Inc.", "sector": "Financial Services", "industry": "Credit Services", "exchange": "NMS"}],
+                "axp": [{"symbol": "AXP", "name": "American Express Company", "sector": "Financial Services", "industry": "Credit Services", "exchange": "NMS"}],
+                
+                # Financial Services
                 "jpm": [{"symbol": "JPM", "name": "JPMorgan Chase & Co.", "sector": "Financial Services", "industry": "Banks", "exchange": "NMS"}],
                 "bac": [{"symbol": "BAC", "name": "Bank of America Corp.", "sector": "Financial Services", "industry": "Banks", "exchange": "NMS"}],
+                "wfc": [{"symbol": "WFC", "name": "Wells Fargo & Company", "sector": "Financial Services", "industry": "Banks", "exchange": "NMS"}],
+                "gs": [{"symbol": "GS", "name": "Goldman Sachs Group Inc.", "sector": "Financial Services", "industry": "Capital Markets", "exchange": "NMS"}],
+                "ms": [{"symbol": "MS", "name": "Morgan Stanley", "sector": "Financial Services", "industry": "Capital Markets", "exchange": "NMS"}],
+                "c": [{"symbol": "C", "name": "Citigroup Inc.", "sector": "Financial Services", "industry": "Banks", "exchange": "NMS"}],
+                "usb": [{"symbol": "USB", "name": "U.S. Bancorp", "sector": "Financial Services", "industry": "Banks", "exchange": "NMS"}],
+                "pnc": [{"symbol": "PNC", "name": "PNC Financial Services Group", "sector": "Financial Services", "industry": "Banks", "exchange": "NMS"}],
+                "tru": [{"symbol": "TRU", "name": "TransUnion", "sector": "Financial Services", "industry": "Specialty Business Services", "exchange": "NMS"}],
+                "cof": [{"symbol": "COF", "name": "Capital One Financial Corp.", "sector": "Financial Services", "industry": "Credit Services", "exchange": "NMS"}],
+                "dfs": [{"symbol": "DFS", "name": "Discover Financial Services", "sector": "Financial Services", "industry": "Credit Services", "exchange": "NMS"}],
+                
+                # Consumer Companies
+                "aa": [{"symbol": "AA", "name": "Alcoa Corporation", "sector": "Basic Materials", "industry": "Aluminum", "exchange": "NMS"}],
                 "wmt": [{"symbol": "WMT", "name": "Walmart Inc.", "sector": "Consumer Defensive", "industry": "Discount Stores", "exchange": "NMS"}],
                 "ko": [{"symbol": "KO", "name": "The Coca-Cola Company", "sector": "Consumer Defensive", "industry": "Beverages", "exchange": "NMS"}],
                 "hd": [{"symbol": "HD", "name": "The Home Depot Inc.", "sector": "Consumer Cyclical", "industry": "Home Improvement Retail", "exchange": "NMS"}],
+                "pg": [{"symbol": "PG", "name": "Procter & Gamble Company", "sector": "Consumer Defensive", "industry": "Household & Personal Products", "exchange": "NMS"}],
+                "pep": [{"symbol": "PEP", "name": "PepsiCo Inc.", "sector": "Consumer Defensive", "industry": "Beverages", "exchange": "NMS"}],
+                "mcd": [{"symbol": "MCD", "name": "McDonald's Corporation", "sector": "Consumer Cyclical", "industry": "Restaurants", "exchange": "NMS"}],
+                "sbux": [{"symbol": "SBUX", "name": "Starbucks Corporation", "sector": "Consumer Cyclical", "industry": "Restaurants", "exchange": "NMS"}],
+                "nke": [{"symbol": "NKE", "name": "NIKE Inc.", "sector": "Consumer Cyclical", "industry": "Footwear & Accessories", "exchange": "NMS"}],
+                "dis": [{"symbol": "DIS", "name": "Walt Disney Company", "sector": "Communication Services", "industry": "Entertainment", "exchange": "NMS"}],
+                "cmcsa": [{"symbol": "CMCSA", "name": "Comcast Corporation", "sector": "Communication Services", "industry": "Telecom Services", "exchange": "NMS"}],
+                "t": [{"symbol": "T", "name": "AT&T Inc.", "sector": "Communication Services", "industry": "Telecom Services", "exchange": "NMS"}],
+                "vz": [{"symbol": "VZ", "name": "Verizon Communications Inc.", "sector": "Communication Services", "industry": "Telecom Services", "exchange": "NMS"}],
+                
+                # Healthcare & Pharmaceuticals
+                "jnj": [{"symbol": "JNJ", "name": "Johnson & Johnson", "sector": "Healthcare", "industry": "Drug Manufacturers", "exchange": "NMS"}],
+                "pfe": [{"symbol": "PFE", "name": "Pfizer Inc.", "sector": "Healthcare", "industry": "Drug Manufacturers", "exchange": "NMS"}],
+                "unh": [{"symbol": "UNH", "name": "UnitedHealth Group Inc.", "sector": "Healthcare", "industry": "Healthcare Plans", "exchange": "NMS"}],
+                "abbv": [{"symbol": "ABBV", "name": "AbbVie Inc.", "sector": "Healthcare", "industry": "Drug Manufacturers", "exchange": "NMS"}],
+                "mrk": [{"symbol": "MRK", "name": "Merck & Co. Inc.", "sector": "Healthcare", "industry": "Drug Manufacturers", "exchange": "NMS"}],
+                "abt": [{"symbol": "ABT", "name": "Abbott Laboratories", "sector": "Healthcare", "industry": "Medical Devices", "exchange": "NMS"}],
+                "tmo": [{"symbol": "TMO", "name": "Thermo Fisher Scientific Inc.", "sector": "Healthcare", "industry": "Medical Devices", "exchange": "NMS"}],
+                "dhr": [{"symbol": "DHR", "name": "Danaher Corporation", "sector": "Healthcare", "industry": "Medical Devices", "exchange": "NMS"}],
+                "lly": [{"symbol": "LLY", "name": "Eli Lilly and Company", "sector": "Healthcare", "industry": "Drug Manufacturers", "exchange": "NMS"}],
+                "bmy": [{"symbol": "BMY", "name": "Bristol-Myers Squibb Company", "sector": "Healthcare", "industry": "Drug Manufacturers", "exchange": "NMS"}],
+                "amgn": [{"symbol": "AMGN", "name": "Amgen Inc.", "sector": "Healthcare", "industry": "Biotechnology", "exchange": "NMS"}],
+                "gild": [{"symbol": "GILD", "name": "Gilead Sciences Inc.", "sector": "Healthcare", "industry": "Biotechnology", "exchange": "NMS"}],
+                "regn": [{"symbol": "REGN", "name": "Regeneron Pharmaceuticals Inc.", "sector": "Healthcare", "industry": "Biotechnology", "exchange": "NMS"}],
+                
+                # ETFs
                 "spy": [{"symbol": "SPY", "name": "SPDR S&P 500 ETF Trust", "sector": "ETF", "industry": "ETF", "exchange": "NMS"}],
                 "qqq": [{"symbol": "QQQ", "name": "Invesco QQQ Trust", "sector": "ETF", "industry": "ETF", "exchange": "NMS"}],
                 "vti": [{"symbol": "VTI", "name": "Vanguard Total Stock Market ETF", "sector": "ETF", "industry": "ETF", "exchange": "NMS"}],
-                "voo": [{"symbol": "VOO", "name": "Vanguard S&P 500 ETF", "sector": "ETF", "industry": "ETF", "exchange": "NMS"}]
+                "voo": [{"symbol": "VOO", "name": "Vanguard S&P 500 ETF", "sector": "ETF", "industry": "ETF", "exchange": "NMS"}],
+                "iwm": [{"symbol": "IWM", "name": "iShares Russell 2000 ETF", "sector": "ETF", "industry": "ETF", "exchange": "NMS"}],
+                "dia": [{"symbol": "DIA", "name": "SPDR Dow Jones Industrial Average ETF", "sector": "ETF", "industry": "ETF", "exchange": "NMS"}],
+                "schb": [{"symbol": "SCHB", "name": "Schwab U.S. Broad Market ETF", "sector": "ETF", "industry": "ETF", "exchange": "NMS"}],
+                "schx": [{"symbol": "SCHX", "name": "Schwab U.S. Large-Cap ETF", "sector": "ETF", "industry": "ETF", "exchange": "NMS"}],
+                
+                # Energy & Industrial
+                "xom": [{"symbol": "XOM", "name": "Exxon Mobil Corporation", "sector": "Energy", "industry": "Oil & Gas Integrated", "exchange": "NMS"}],
+                "cvx": [{"symbol": "CVX", "name": "Chevron Corporation", "sector": "Energy", "industry": "Oil & Gas Integrated", "exchange": "NMS"}],
+                "cop": [{"symbol": "COP", "name": "ConocoPhillips", "sector": "Energy", "industry": "Oil & Gas E&P", "exchange": "NMS"}],
+                "eog": [{"symbol": "EOG", "name": "EOG Resources Inc.", "sector": "Energy", "industry": "Oil & Gas E&P", "exchange": "NMS"}],
+                "ba": [{"symbol": "BA", "name": "Boeing Company", "sector": "Industrials", "industry": "Aerospace & Defense", "exchange": "NMS"}],
+                "cat": [{"symbol": "CAT", "name": "Caterpillar Inc.", "sector": "Industrials", "industry": "Farm & Heavy Construction Machinery", "exchange": "NMS"}],
+                "ge": [{"symbol": "GE", "name": "General Electric Company", "sector": "Industrials", "industry": "Specialty Industrial Machinery", "exchange": "NMS"}],
+                "hon": [{"symbol": "HON", "name": "Honeywell International Inc.", "sector": "Industrials", "industry": "Specialty Industrial Machinery", "exchange": "NMS"}],
+                "mmc": [{"symbol": "MMC", "name": "Marsh & McLennan Companies Inc.", "sector": "Financial Services", "industry": "Insurance Brokers", "exchange": "NMS"}],
+                "ajg": [{"symbol": "AJG", "name": "Arthur J. Gallagher & Co.", "sector": "Financial Services", "industry": "Insurance Brokers", "exchange": "NMS"}],
+                
+                # Real Estate & Utilities
+                "eqr": [{"symbol": "EQR", "name": "Equity Residential", "sector": "Real Estate", "industry": "REIT - Residential", "exchange": "NMS"}],
+                "pld": [{"symbol": "PLD", "name": "Prologis Inc.", "sector": "Real Estate", "industry": "REIT - Industrial", "exchange": "NMS"}],
+                "duk": [{"symbol": "DUK", "name": "Duke Energy Corporation", "sector": "Utilities", "industry": "Utilities - Regulated Electric", "exchange": "NMS"}],
+                "nee": [{"symbol": "NEE", "name": "NextEra Energy Inc.", "sector": "Utilities", "industry": "Utilities - Regulated Electric", "exchange": "NMS"}],
+                "so": [{"symbol": "SO", "name": "Southern Company", "sector": "Utilities", "industry": "Utilities - Regulated Electric", "exchange": "NMS"}],
+                
+                # Additional Popular Stocks
+                "cost": [{"symbol": "COST", "name": "Costco Wholesale Corporation", "sector": "Consumer Defensive", "industry": "Discount Stores", "exchange": "NMS"}],
+                "tgt": [{"symbol": "TGT", "name": "Target Corporation", "sector": "Consumer Defensive", "industry": "Discount Stores", "exchange": "NMS"}],
+                "lmt": [{"symbol": "LMT", "name": "Lockheed Martin Corporation", "sector": "Industrials", "industry": "Aerospace & Defense", "exchange": "NMS"}],
+                "rtx": [{"symbol": "RTX", "name": "Raytheon Technologies Corporation", "sector": "Industrials", "industry": "Aerospace & Defense", "exchange": "NMS"}],
+                "de": [{"symbol": "DE", "name": "Deere & Company", "sector": "Industrials", "industry": "Farm & Heavy Construction Machinery", "exchange": "NMS"}],
+                "unp": [{"symbol": "UNP", "name": "Union Pacific Corporation", "sector": "Industrials", "industry": "Railroads", "exchange": "NMS"}],
+                "ups": [{"symbol": "UPS", "name": "United Parcel Service Inc.", "sector": "Industrials", "industry": "Integrated Freight & Logistics", "exchange": "NMS"}],
+                "fedex": [{"symbol": "FDX", "name": "FedEx Corporation", "sector": "Industrials", "industry": "Integrated Freight & Logistics", "exchange": "NMS"}],
+                "fdx": [{"symbol": "FDX", "name": "FedEx Corporation", "sector": "Industrials", "industry": "Integrated Freight & Logistics", "exchange": "NMS"}]
             }
             
             query_lower = query.lower()
