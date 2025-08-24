@@ -19,9 +19,21 @@ class ValueAgentApp {
     bindEvents() {
         // Stock search input
         const searchInput = document.getElementById('stockSearch');
-        searchInput.addEventListener('input', (e) => this.handleSearchInput(e));
-        searchInput.addEventListener('focus', () => this.showSearchResults());
-        searchInput.addEventListener('blur', () => this.hideSearchResultsDelayed());
+        console.log('Search input element:', searchInput);
+        
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                console.log('Search input event:', e.target.value);
+                this.handleSearchInput(e);
+            });
+            searchInput.addEventListener('focus', () => {
+                console.log('Search input focused');
+                this.showSearchResults();
+            });
+            searchInput.addEventListener('blur', () => this.hideSearchResultsDelayed());
+        } else {
+            console.error('Search input element not found!');
+        }
 
         // Download report button
         const downloadBtn = document.getElementById('downloadReport');
@@ -69,11 +81,23 @@ class ValueAgentApp {
 
     async performSearch(query) {
         try {
+            console.log('Searching for:', query);
             const response = await fetch(`/api/search_stocks?q=${encodeURIComponent(query)}`);
+            console.log('Search response status:', response.status);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
             const stocks = await response.json();
+            console.log('Search results:', stocks);
             this.displaySearchResults(stocks);
         } catch (error) {
             console.error('Search error:', error);
+            // Show error message to user
+            const searchResults = document.getElementById('searchResults');
+            searchResults.innerHTML = `<div class="p-4 text-red-500 text-center">Search error: ${error.message}</div>`;
+            searchResults.classList.remove('hidden');
         }
     }
 
