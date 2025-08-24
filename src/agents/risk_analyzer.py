@@ -51,7 +51,7 @@ class RiskAnalyzer:
         except Exception:
             return {"profile": {}, "facts": {}, "ticker": ticker, "analysis_date": datetime.now().strftime("%Y-%m-%d")}
     
-    def _get_recent_risk_documents(self, ticker: str) -> List[Dict[str, Any]]:
+    def _get_recent_risk_documents(self, ticker: str, context: Dict[str, Any] = None) -> List[Dict[str, Any]]:
         """Get recent risk-related documents from multiple sources"""
         risk_docs = []
         
@@ -259,3 +259,97 @@ Keep total response under 400 words. Focus on most material risks."""
         analysis.append("ℹ️ **Enable LLM Analysis**: Set OPENAI_API_KEY in .env file for comprehensive risk assessment.")
         
         return "\n".join(analysis)
+
+    def analyze_risks_web(self, ticker: str) -> Dict[str, Any]:
+        """Generate web-friendly risk analysis with structured data"""
+        try:
+            context = self._get_company_context(ticker)
+            risk_documents = self._get_recent_risk_documents(ticker, context)
+            
+            # Try LLM analysis first
+            try:
+                llm_analysis = self._generate_llm_risk_analysis(ticker, context, risk_documents)
+                return {
+                    "success": True,
+                    "ticker": ticker,
+                    "analysis_type": "ai_powered",
+                    "content": llm_analysis,
+                    "summary": self._extract_risk_summary(llm_analysis),
+                    "risk_level": self._assess_risk_level(context),
+                    "key_metrics": self._extract_key_risk_metrics(context),
+                    "last_updated": datetime.now().isoformat()
+                }
+            except Exception as e:
+                # Fallback to basic analysis
+                fallback_analysis = self._generate_fallback_risk_analysis(ticker, context, risk_documents, str(e))
+                return {
+                    "success": True,
+                    "ticker": ticker,
+                    "analysis_type": "basic",
+                    "content": fallback_analysis,
+                    "summary": self._extract_risk_summary(fallback_analysis),
+                    "risk_level": self._assess_risk_level(context),
+                    "key_metrics": self._extract_key_risk_metrics(context),
+                    "last_updated": datetime.now().isoformat(),
+                    "note": f"AI analysis failed: {str(e)}"
+                }
+                
+        except Exception as e:
+            return {
+                "success": False,
+                "ticker": ticker,
+                "error": str(e),
+                "last_updated": datetime.now().isoformat()
+            }
+
+    def _extract_risk_summary(self, analysis: str) -> str:
+        """Extract a brief risk summary from the full analysis"""
+        lines = analysis.split('\n')
+        summary_lines = []
+        for line in lines:
+            if line.strip().startswith('##') or line.strip().startswith('**'):
+                summary_lines.append(line.strip())
+            if len(summary_lines) >= 3:
+                break
+        return '\n'.join(summary_lines) if summary_lines else "Risk analysis available"
+
+    def _assess_risk_level(self, context: Dict[str, Any]) -> str:
+        """Assess overall risk level based on financial metrics"""
+        financials = context.get("facts", {})
+        
+        # Simple risk assessment logic
+        debt_equity = financials.get('debt_to_equity')
+        fcf_yield = financials.get('fcf_yield_ttm')
+        
+        # Handle None values safely
+        if debt_equity is None and fcf_yield is None:
+            return "Unknown"
+        
+        # Check if values are numeric before comparison
+        if debt_equity is not None and isinstance(debt_equity, (int, float)):
+            if debt_equity > 1.0:
+                return "High"
+            elif debt_equity > 0.5:
+                return "Medium"
+        
+        if fcf_yield is not None and isinstance(fcf_yield, (int, float)):
+            if fcf_yield < 0.02:
+                return "High"
+            elif fcf_yield < 0.05:
+                return "Medium"
+        
+        return "Low"
+
+    def _extract_key_risk_metrics(self, context: Dict[str, Any]) -> Dict[str, Any]:
+        """Extract key risk-related metrics for web display"""
+        financials = context.get("facts", {})
+        profile = context.get("profile", {})
+        
+        return {
+            "debt_to_equity": financials.get('debt_to_equity', 'N/A'),
+            "fcf_yield": financials.get('fcf_yield_ttm', 'N/A'),
+            "roic": financials.get('roic_est', 'N/A'),
+            "gross_margin": financials.get('gross_margin', 'N/A'),
+            "sector": profile.get('sector', 'Unknown'),
+            "industry": profile.get('industry', 'Unknown')
+        }

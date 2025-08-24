@@ -14,7 +14,7 @@ source .venv/bin/activate
 
 # Install web dependencies if not already installed
 echo "📦 Installing web dependencies..."
-pip install -r web_requirements.txt
+pip install -r requirements.txt
 
 # Start the Flask app
 echo "🌐 Starting Flask server on port 5001..."

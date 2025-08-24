@@ -138,7 +138,7 @@ def get_analysis_section(symbol, section):
         
         elif section == "risk_analysis":
             # Get risk analysis
-            risk_analysis = orchestrator.coordinator.tools["risk_analyzer"].analyze_risks(symbol)
+            risk_analysis = orchestrator.coordinator.tools["risk_analyzer"].analyze_risks_web(symbol)
             return jsonify({
                 "section": section,
                 "data": risk_analysis

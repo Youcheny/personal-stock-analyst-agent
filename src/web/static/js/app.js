@@ -364,7 +364,73 @@ class ValueAgentApp {
     }
 
     renderRiskAnalysis(data) {
-        // Handle both string and object data
+        // Handle structured web data
+        if (data && typeof data === 'object' && data.success) {
+            const riskLevel = data.risk_level || 'Unknown';
+            const riskLevelClass = {
+                'High': 'text-red-600',
+                'Medium': 'text-yellow-600',
+                'Low': 'text-green-600'
+            }[riskLevel] || 'text-gray-600';
+
+            return `
+                <div class="analysis-content">
+                    <div class="mb-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm font-medium text-gray-500">Risk Level</span>
+                            <span class="px-2 py-1 text-xs font-semibold rounded-full ${riskLevelClass} bg-gray-100">
+                                ${riskLevel}
+                            </span>
+                        </div>
+                        <div class="text-sm text-gray-600">${data.summary || 'Risk analysis available'}</div>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <div>
+                            <h4 class="font-semibold text-gray-900 mb-2">Key Risk Metrics</h4>
+                            <div class="grid grid-cols-2 gap-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Debt/Equity:</span>
+                                    <span class="font-medium">${data.key_metrics?.debt_to_equity || 'N/A'}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">FCF Yield:</span>
+                                    <span class="font-medium">${this.formatPercent(data.key_metrics?.fcf_yield)}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">ROIC:</span>
+                                    <span class="font-medium">${this.formatPercent(data.key_metrics?.roic)}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Gross Margin:</span>
+                                    <span class="font-medium">${this.formatPercent(data.key_metrics?.gross_margin)}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 class="font-semibold text-gray-900 mb-2">Detailed Analysis</h4>
+                            <div class="prose prose-sm max-w-none">
+                                ${data.content || 'No detailed analysis available'}
+                            </div>
+                        </div>
+                        
+                        ${data.note ? `<div class="text-xs text-gray-500 italic">${data.note}</div>` : ''}
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Handle error cases
+        if (data && data.error) {
+            return `
+                <div class="analysis-content">
+                    <div class="error-message">Error: ${data.error}</div>
+                </div>
+            `;
+        }
+        
+        // Fallback for old format
         if (typeof data === 'string') {
             return `<div class="analysis-content">${data}</div>`;
         }
@@ -379,8 +445,18 @@ class ValueAgentApp {
     }
 
     renderTechAnalysis(data) {
+        // Handle string data (original format)
         if (typeof data === 'string') {
             return `<div class="analysis-content">${data}</div>`;
+        }
+        
+        // Handle error cases
+        if (data && data.error) {
+            return `
+                <div class="analysis-content">
+                    <div class="error-message">Error: ${data.error}</div>
+                </div>
+            `;
         }
         
         return `
@@ -393,8 +469,18 @@ class ValueAgentApp {
     }
 
     renderFinancialsAnalysis(data) {
+        // Handle string data (original format)
         if (typeof data === 'string') {
             return `<div class="analysis-content">${data}</div>`;
+        }
+        
+        // Handle error cases
+        if (data && data.error) {
+            return `
+                <div class="analysis-content">
+                    <div class="error-message">Error: ${data.error}</div>
+                </div>
+            `;
         }
         
         return `
@@ -531,6 +617,11 @@ class ValueAgentApp {
         // You could implement a toast notification system here
         console.error(message);
         alert(message);
+    }
+
+    formatPercent(value) {
+        if (value === null || value === undefined) return 'N/A';
+        return typeof value === 'number' ? `${(value * 100).toFixed(2)}%` : value;
     }
 }
 

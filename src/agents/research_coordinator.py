@@ -1,4 +1,5 @@
 from typing import Dict, Any, List
+from datetime import datetime
 
 class ResearchCoordinator:
     def __init__(self, tools: Dict[str, Any]):
@@ -71,3 +72,98 @@ class ResearchCoordinator:
             "**Debt-to-Equity** — Total Debt ÷ Shareholders' Equity. A measure of leverage; higher values mean more debt relative to equity.",
         ]
         return "\n".join(memo)
+
+    def research_brief_web(self, ticker: str) -> Dict[str, Any]:
+        """Generate web-friendly research brief with structured data"""
+        try:
+            profile = self.tools["mkt"].company_profile(ticker)
+            filings = self.tools["sec"].latest_filings(ticker, forms=["10-K", "10-Q"], limit=3)
+            facts = self.tools["mkt"].compute_quick_facts(ticker)
+
+            # Use risk analyzer if available, otherwise fall back to basic risk extraction
+            if "risk_analyzer" in self.tools:
+                risk_analysis = self.tools["risk_analyzer"].analyze_risks_web(ticker)
+            else:
+                # Fallback to basic risk extraction
+                risk_items = self.tools["sec"].extract_risk_items(filings)
+                risk_analysis = {
+                    "success": True,
+                    "ticker": ticker,
+                    "analysis_type": "basic",
+                    "content": "### Risks (from recent filings)\n" + "\n".join([f"- {r}" for r in risk_items[:5]]),
+                    "summary": f"Found {len(risk_items)} risk items from recent filings",
+                    "risk_level": "Unknown",
+                    "key_metrics": {},
+                    "last_updated": datetime.now().isoformat()
+                }
+
+            return {
+                "success": True,
+                "ticker": ticker,
+                "profile": profile,
+                "facts": facts,
+                "risk_analysis": risk_analysis,
+                "citations": {
+                    "sec": [f["url"] for f in filings],
+                    "prices": self.tools["mkt"].last_price_link(ticker)
+                },
+                "last_updated": datetime.now().isoformat()
+            }
+        except Exception as e:
+            return {
+                "success": False,
+                "ticker": ticker,
+                "error": str(e),
+                "last_updated": datetime.now().isoformat()
+            }
+
+    def compile_memo_web(self, ticker: str, base: dict, addenda: List[str]) -> Dict[str, Any]:
+        """Generate web-friendly memo with structured data"""
+        try:
+            p = base.get("profile", {})
+            f = base.get("facts", {})
+            risk_analysis = base.get("risk_analysis", {})
+            cites = base.get("citations", {})
+
+            def pct(x): return f"{x:.2%}" if isinstance(x, (int, float)) else "n/a"
+
+            # Structured memo data
+            memo_data = {
+                "success": True,
+                "ticker": ticker,
+                "header": {
+                    "title": f"{ticker} — One‑Pager (Personal Research)",
+                    "company_name": p.get('longName') or p.get('name') or 'n/a',
+                    "sector": p.get('sector', 'n/a'),
+                    "industry": p.get('industry', 'n/a'),
+                    "summary": (p.get('longBusinessSummary') or 'n/a')[:600] + "..." if p.get('longBusinessSummary') else 'n/a'
+                },
+                "quick_facts": {
+                    "fcf_yield": pct(f.get('fcf_yield_ttm')),
+                    "roic": pct(f.get('roic_est')),
+                    "debt_to_equity": f.get('debt_to_equity', 'n/a'),
+                    "gross_margin": pct(f.get('gross_margin')),
+                    "operating_margin": pct(f.get('operating_margin'))
+                },
+                "risk_analysis": risk_analysis,
+                "specialist_notes": addenda,
+                "sources": {
+                    "sec_filings": cites.get('sec', []),
+                    "prices_news": cites.get('prices', '')
+                },
+                "metrics_glossary": {
+                    "fcf_yield": "Free Cash Flow (Operating Cash Flow – CapEx) ÷ Market Cap. Roughly, the cash return you get on the stock price.",
+                    "roic": "After-tax operating profit ÷ (Debt + Equity – Cash). Shows how efficiently the business turns capital into profit.",
+                    "debt_to_equity": "Total Debt ÷ Shareholders' Equity. A measure of leverage; higher values mean more debt relative to equity."
+                },
+                "last_updated": datetime.now().isoformat()
+            }
+
+            return memo_data
+        except Exception as e:
+            return {
+                "success": False,
+                "ticker": ticker,
+                "error": str(e),
+                "last_updated": datetime.now().isoformat()
+            }
