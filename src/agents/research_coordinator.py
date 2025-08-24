@@ -1,6 +1,6 @@
 from typing import Dict, Any, List
 
-class ValuePM:
+class ResearchCoordinator:
     def __init__(self, tools: Dict[str, Any]):
         self.tools = tools
 

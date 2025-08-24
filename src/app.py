@@ -3,7 +3,7 @@ import os
 from dotenv import load_dotenv
 
 from orchestrator import Orchestrator
-from agents.value_pm import ValuePM
+from agents.research_coordinator import ResearchCoordinator
 from agents.sector_tech import TechAnalyst
 from agents.sector_financials import FinancialsAnalyst
 from agents.risk_analyzer import RiskAnalyzer
@@ -18,11 +18,11 @@ def build_orchestrator():
     llm = LLMAnalyzer(api_key=os.getenv("OPENAI_API_KEY"))
     risk_analyzer = RiskAnalyzer(tools={"sec": sec, "mkt": mkt, "llm": llm})
 
-    value_pm = ValuePM(tools={"sec": sec, "mkt": mkt, "llm": llm, "risk_analyzer": risk_analyzer})
+    research_coordinator = ResearchCoordinator(tools={"sec": sec, "mkt": mkt, "llm": llm, "risk_analyzer": risk_analyzer})
     tech = TechAnalyst(tools={"sec": sec, "mkt": mkt, "llm": llm})
     fins = FinancialsAnalyst(tools={"sec": sec, "mkt": mkt, "llm": llm})
 
-    return Orchestrator(coordinator=value_pm, specialists={"tech": tech, "fins": fins})
+    return Orchestrator(coordinator=research_coordinator, specialists={"tech": tech, "fins": fins})
 
 def main():
     parser = argparse.ArgumentParser(description="Value-Agent (ADK-style) CLI")
