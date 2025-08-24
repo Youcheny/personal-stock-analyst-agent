@@ -410,8 +410,8 @@ class ValueAgentApp {
                         
                         <div>
                             <h4 class="font-semibold text-gray-900 mb-2">Detailed Analysis</h4>
-                            <div class="prose prose-sm max-w-none">
-                                ${data.content || 'No detailed analysis available'}
+                            <div class="prose prose-sm max-w-none markdown-content">
+                                ${this.parseMarkdown(data.content || 'No detailed analysis available')}
                             </div>
                         </div>
                         
@@ -447,7 +447,7 @@ class ValueAgentApp {
     renderTechAnalysis(data) {
         // Handle string data (original format)
         if (typeof data === 'string') {
-            return `<div class="analysis-content">${data}</div>`;
+            return `<div class="analysis-content markdown-content">${this.parseMarkdown(data)}</div>`;
         }
         
         // Handle error cases
@@ -471,7 +471,7 @@ class ValueAgentApp {
     renderFinancialsAnalysis(data) {
         // Handle string data (original format)
         if (typeof data === 'string') {
-            return `<div class="analysis-content">${data}</div>`;
+            return `<div class="analysis-content markdown-content">${this.parseMarkdown(data)}</div>`;
         }
         
         // Handle error cases
@@ -623,6 +623,24 @@ class ValueAgentApp {
         if (value === null || value === undefined) return 'N/A';
         return typeof value === 'number' ? `${(value * 100).toFixed(2)}%` : value;
     }
+
+    // Simple markdown to HTML conversion
+    parseMarkdown(content) {
+        if (!content || typeof content !== 'string') {
+            return content || 'No content available';
+        }
+        
+        // Configure marked options
+        marked.setOptions({
+            breaks: true,
+            gfm: true
+        });
+        
+        // Parse markdown to HTML
+        return marked.parse(content);
+    }
+
+
 }
 
 // Initialize the app when DOM is loaded
