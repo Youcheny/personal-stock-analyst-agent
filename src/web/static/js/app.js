@@ -82,16 +82,31 @@ class ValueAgentApp {
     async performSearch(query) {
         try {
             console.log('Searching for:', query);
-            const response = await fetch(`/api/search_stocks?q=${encodeURIComponent(query)}`);
+            const searchUrl = `/api/search_stocks?q=${encodeURIComponent(query)}`;
+            console.log('Search URL:', searchUrl);
+            
+            const response = await fetch(searchUrl);
             console.log('Search response status:', response.status);
+            console.log('Search response headers:', response.headers);
             
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                const errorText = await response.text();
+                console.error('Response error text:', errorText);
+                throw new Error(`HTTP error! status: ${response.status}, body: ${errorText}`);
             }
             
             const stocks = await response.json();
             console.log('Search results:', stocks);
-            this.displaySearchResults(stocks);
+            console.log('Number of stocks found:', stocks.length);
+            
+            if (stocks && stocks.length > 0) {
+                this.displaySearchResults(stocks);
+            } else {
+                console.log('No stocks found, showing empty message');
+                const searchResults = document.getElementById('searchResults');
+                searchResults.innerHTML = '<div class="p-4 text-gray-500 text-center">No stocks found for "' + query + '"</div>';
+                searchResults.classList.remove('hidden');
+            }
         } catch (error) {
             console.error('Search error:', error);
             // Show error message to user

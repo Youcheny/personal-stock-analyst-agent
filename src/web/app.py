@@ -61,19 +61,26 @@ def index():
 def search_stocks():
     """Search for stocks based on query using Yahoo Finance"""
     query = request.args.get('q', '').strip()
+    print(f"🔍 Search request received for query: '{query}'")
+    
     if not query or len(query) < 1:
+        print("❌ Empty query, returning empty results")
         return jsonify([])
     
     try:
         # Use Yahoo Finance search for real-time stock discovery
         import yfinance as yf
+        print("✅ yfinance imported successfully")
         
         stocks = []
         
         # Try direct ticker lookup first
         try:
+            print(f"🔍 Trying direct ticker lookup for: {query.upper()}")
             ticker = yf.Ticker(query.upper())
             info = ticker.info
+            print(f"📊 Ticker info received: {bool(info)}")
+            
             if info and info.get('symbol'):
                 stock_data = {
                     "symbol": info.get('symbol', ''),
@@ -85,7 +92,13 @@ def search_stocks():
                 
                 if stock_data["symbol"] and stock_data["name"]:
                     stocks.append(stock_data)
-        except:
+                    print(f"✅ Added stock: {stock_data['symbol']} - {stock_data['name']}")
+                else:
+                    print(f"❌ Stock data incomplete: {stock_data}")
+            else:
+                print(f"❌ No ticker info found for: {query.upper()}")
+        except Exception as e:
+            print(f"❌ Direct ticker lookup failed: {str(e)}")
             pass
         
         # Try common ticker variations
@@ -196,10 +209,16 @@ def search_stocks():
                     except:
                         continue
         
+        print(f"🎯 Final search results: {len(stocks)} stocks found")
+        for i, stock in enumerate(stocks):
+            print(f"  {i+1}. {stock['symbol']} - {stock['name']}")
+        
         return jsonify(stocks)
         
     except Exception as e:
-        print(f"Error in stock search: {e}")
+        print(f"❌ Error in stock search: {e}")
+        import traceback
+        traceback.print_exc()
         # Fallback to basic search if Yahoo Finance fails
         return jsonify([])
 
@@ -320,7 +339,7 @@ def get_stock_price(symbol):
             "change_percent": price_change_percent,
             "change_direction": change_direction
         })
-        
+            
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
