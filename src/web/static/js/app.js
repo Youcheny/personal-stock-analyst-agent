@@ -22,15 +22,13 @@ class ValueAgentApp {
         console.log('Search input element:', searchInput);
         
         if (searchInput) {
-            searchInput.addEventListener('input', (e) => {
-                console.log('Search input event:', e.target.value);
-                this.handleSearchInput(e);
-            });
+            // Bind methods to preserve 'this' context
+            searchInput.addEventListener('input', this.handleSearchInput.bind(this));
             searchInput.addEventListener('focus', () => {
                 console.log('Search input focused');
-                this.showSearchResults();
+                // Don't show results on focus, only when typing
             });
-            searchInput.addEventListener('blur', () => this.hideSearchResultsDelayed());
+            searchInput.addEventListener('blur', this.hideSearchResultsDelayed.bind(this));
         } else {
             console.error('Search input element not found!');
         }
@@ -38,7 +36,7 @@ class ValueAgentApp {
         // Download report button
         const downloadBtn = document.getElementById('downloadReport');
         if (downloadBtn) {
-            downloadBtn.addEventListener('click', () => this.downloadReport());
+            downloadBtn.addEventListener('click', this.downloadReport.bind(this));
         }
 
         // Click outside to close search results
