@@ -23,8 +23,8 @@ from src.tools.market_data import MarketData
 from src.tools.llm_analyzer import LLMAnalyzer
 
 app = Flask(__name__, 
-           template_folder=os.path.join(os.path.dirname(__file__), 'templates'),
-           static_folder=os.path.join(os.path.dirname(__file__), 'static'))
+           template_folder='templates',
+           static_folder='static')
 CORS(app)
 
 # Load environment variables
@@ -354,8 +354,18 @@ def get_stock_performance(symbol):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+# Initialize the orchestrator for Vercel deployment
+try:
+    initialize_orchestrator()
+    if orchestrator:
+        print("✅ Value Agent orchestrator initialized successfully for Vercel")
+    else:
+        print("❌ Failed to initialize Value Agent for Vercel")
+except Exception as e:
+    print(f"❌ Error initializing orchestrator for Vercel: {e}")
+
 if __name__ == '__main__':
-    # Initialize the orchestrator in a separate thread
+    # Initialize the orchestrator in a separate thread for local development
     init_thread = threading.Thread(target=initialize_orchestrator)
     init_thread.start()
     

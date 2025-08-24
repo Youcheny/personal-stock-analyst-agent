@@ -2,17 +2,26 @@
   "version": 2,
   "builds": [
     {
-      "src": "src/web/app.py",
+      "src": "api/index.py",
       "use": "@vercel/python"
     }
   ],
   "routes": [
     {
+      "src": "/static/(.*)",
+      "dest": "src/web/static/$1"
+    },
+    {
       "src": "/(.*)",
-      "dest": "web_app.py"
+      "dest": "/api/index.py"
     }
   ],
   "env": {
     "PYTHONPATH": "."
+  },
+  "functions": {
+    "api/index.py": {
+      "maxDuration": 30
+    }
   }
 }
